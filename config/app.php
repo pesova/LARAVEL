@@ -233,18 +233,6 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Cloudder' => JD\Cloudder\Facades\Cloudder::class,
 
-        'SlackApi'              => Craftyx\SlackApi\Facades\SlackApi::class,
-        'SlackChannel'          => Craftyx\SlackApi\Facades\SlackChannel::class,
-        'SlackChat'             => Craftyx\SlackApi\Facades\SlackChat::class,
-        'SlackGroup'            => Craftyx\SlackApi\Facades\SlackGroup::class,
-        'SlackFile'             => Craftyx\SlackApi\Facades\SlackFile::class,
-        'SlackSearch'           => Craftyx\SlackApi\Facades\SlackSearch::class,
-        'SlackInstantMessage'   => Craftyx\SlackApi\Facades\SlackInstantMessage::class,
-        'SlackUser'             => Craftyx\SlackApi\Facades\SlackUser::class,
-        'SlackStar'             => Craftyx\SlackApi\Facades\SlackStar::class,
-        'SlackUserAdmin'        => Craftyx\SlackApi\Facades\SlackUserAdmin::class,
-        'SlackRealTimeMessage'  => Craftyx\SlackApi\Facades\SlackRealTimeMessage::class,
-        'SlackTeam'             => Craftyx\SlackApi\Facades\SlackTeam::class,
 
     ],
 

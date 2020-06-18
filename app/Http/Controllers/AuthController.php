@@ -4,23 +4,25 @@
 namespace App\Http\Controllers;
 use App\User;
 use Validator;
-use App\RoleUser;
-use App\TrackUser;
 use Carbon\Carbon;
 use App\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserRegistration;
-use Craftyx\SlackApi\Facades\SlackUser;
+
+
+
+
+
+
 
 
 class AuthController extends Controller
 {
-
-    public function login(Request $request){ 
+/*
+    public function login(Request $request){
 
         //logic for logging in with username or email, and password.
         if(Auth::attempt([
@@ -38,25 +40,25 @@ class AuthController extends Controller
             200
         );
         }else{
-            return response()->json(['status' => false, 
+            return response()->json(['status' => false,
             'error' => 'Unauthorized'
         ], 401);
         }
     }
+*/
 
-
-    public function register(Request $request) { 
+    public function register(Request $request) {
         //logic for sign up
-        
+
         $messages = [];
         $validator = Validator::make($request->all(),[
             'firstname' => 'required',
-            'lastname' => 'required',
-            'username' => 'required|unique:users,username|max:30',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required',
-            'confirm_password' => 'required|same:password',
-            'location' => 'required',
+          //  'lastname' => 'required',
+          //  'username' => 'required|unique:users,username|max:30',
+          //  'email' => 'required|email|unique:users,email',
+          //  'password' => 'required',
+          //  'confirm_password' => 'required|same:password',
+            'location' => 'nullable',
             'gender' => 'nullable'
         ]);
 
@@ -67,45 +69,23 @@ class AuthController extends Controller
             ], 401);
         }
         $input = $request->all();
-        
-        $slackUser = SlackUser::lookupByEmail($input['email']);
 
-        if (!$slackUser->ok) {
-            return $this->ERROR('Please confirm that your email is used on slack and try again');
-        }
+        //$input['password'] = bcrypt($input['password']);
 
-        
-        $input['slack_id'] = $slackUser->user->id;
-        // dd($input['slack_id']);
-        $input['password'] = bcrypt($input['password']);
-        $input['role'] = 'intern';
-        $input['stack'] = 'Default';
-        
 
         DB::beginTransaction();
         $user = User::create($input);
-        
-        $tracks = $request->tracks;
-        if ($tracks && is_array($tracks)) {
-            foreach ($tracks as $track) {
-                $trackUser = new TrackUser;
-                $trackUser->user_id = $user->id;
-                $trackUser->track_id = $track;
-                $trackUser->save();
-            }
-        }
-        DB::commit();
-        
-        $user->assignRole('intern');
         // $user->notify(new UserRegistration($user));
+        DB::commit();
         return response()->json([
             'status' => true,
             'message' => 'Registration successful',
             'user' => $user,
         ], 200);
-        
-    } 
 
+    }
+  }
+/*
     public function request_reset(Request $request){
         try{
             $request->validate([ 'email' => 'required|string|email' ]);
@@ -121,7 +101,7 @@ class AuthController extends Controller
             );
             if ($user && $passwordReset){
                 //Send email
-            } 
+            }
             logger("Password reset link sent to " . Auth::user()->email);
             return $this->SUCCESS("Password reset link sent");
         }
@@ -150,7 +130,7 @@ class AuthController extends Controller
                 'password' => 'required|string|confirmed',
                 'token' => 'required|string'
             ]);
-            
+
             if ($validation->fails())  return $this->ERROR($validation->errors());
 
             $passwordReset = PasswordReset::where([
@@ -158,7 +138,7 @@ class AuthController extends Controller
                 ['email', $request->email]
             ])->first();
             if (!$passwordReset) return $this->ERROR("This password reset token is invalid.", $request->token);
-            
+
             $user = User::findOrFail($request->email);
             if (!$user) return $this->ERROR("We can't find a user with the e-mail address " . $request->email);
 
@@ -182,19 +162,19 @@ class AuthController extends Controller
                 'password' => 'required|confirmed',
                 'password_confirmation' => 'required'
             ]);
-            
+
             if ($validation->fails()) {
                 return $this->ERROR('Password update failed', $validation->errors());
             }
-    
+
             $user = User::find(Auth::user()->id);
             if (!Hash::check($request->current, $user->password)) {
                 return $this->ERROR('Current password does not match');
             }
-    
+
             $user->password = bcrypt($request->password);
             $user->save();
-    
+
             return $this->SUCCESS('Password changed');
         }
         catch(\Throwable $e){
@@ -211,7 +191,7 @@ class AuthController extends Controller
                 'revoked' => true
             ]);
 
-        $accessToken->revoke();        
+        $accessToken->revoke();
         return $this->SUCCESS('You are successfully logged out');
     }
 
